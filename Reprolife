@@ -1,0 +1,89 @@
+(function () {
+  // Add CSS for scroll locking
+  const style = document.createElement("style");
+  style.textContent = `
+    .body-no-scroll {
+      overflow: hidden;
+      height: 100%;
+    }
+    #amplinome-chat-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 100px;
+      height: 100px;
+      z-index: 9999;
+      overflow: hidden;
+      border-radius: 0px;
+      box-shadow: 0 0px 0px rgba(0,0,0,0.2);
+    }
+    #amplinome-chat-container iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Add chat container
+  const container = document.createElement("div");
+  container.id = "amplinome-chat-container";
+
+  container.innerHTML = `
+    <iframe 
+      id="amplinome-iframe"
+      src="https://platform.amplinome.com/iframe-overture"
+      allowfullscreen
+    ></iframe>
+  `;
+  document.body.appendChild(container);
+
+  // Scroll locking on desktop hover
+  container.addEventListener("mouseenter", () => {
+    if (window.innerWidth > 768) {
+      document.body.classList.add("body-no-scroll");
+    }
+  });
+
+  container.addEventListener("mouseleave", () => {
+    if (window.innerWidth > 768) {
+      document.body.classList.remove("body-no-scroll");
+    }
+  });
+
+  // Message listener from iframe
+  window.addEventListener("message", (event) => {
+    const isMobile = window.innerWidth <= 768;
+
+    if (event.data === "open-chat") {
+      if (isMobile) {
+        container.style.position = "fixed";
+        container.style.top = "0";
+        container.style.left = "0";
+        container.style.bottom = "";
+        container.style.right = "";
+        container.style.width = "100vw";
+        container.style.height = "100vh";
+        container.style.borderRadius = "0px";
+        document.body.classList.add("body-no-scroll");
+      } else {
+        container.style.width = "420px";
+        container.style.height = "770px";
+        container.style.bottom = "20px";
+        container.style.right = "20px";
+        container.style.top = "";
+        container.style.left = "";
+      }
+    }
+
+    if (event.data === "close-chat") {
+      container.style.width = "90px";
+      container.style.height = "90px";
+      container.style.top = "";
+      container.style.left = "";
+      container.style.bottom = "20px";
+      container.style.right = "20px";
+      document.body.classList.remove("body-no-scroll");
+    }
+  });
+})();
